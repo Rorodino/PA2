@@ -7,7 +7,7 @@ Implements Questions 1–6 of PA2:
 2. Fit 3D Bernstein distortion correction
 3. Recompute EM pivot calibration with distortion correction
 4. Compute fiducial marker locations (B_j) in EM tracker coordinates
-5. Compute registration frame F_reg between EM and CT coordinates
+5. Compute registration frame F_reg (EM → CT)
 6. Apply F_reg to compute probe tip positions in CT coordinates
 """
 
@@ -26,13 +26,14 @@ from a_cis_math import Point3D
 
 # --- Local import for PA2 ---
 from a_distortion_calibration import fit_distortion
+from e_output_writer import write_output2_file
+
 
 # Q1
 def question1_expected_vs_measured(calbody_path, calreadings_path):
     """Compute expected and measured C points for each frame."""
     all_expected, n_c, n_frames, _ = compute_expected_calibration(calbody_path, calreadings_path)
     frames = read_calreadings(calreadings_path)
-
     measured_C_all = [C_frame for (_, _, C_frame) in frames]
     expected_C_all = all_expected
 
@@ -40,12 +41,14 @@ def question1_expected_vs_measured(calbody_path, calreadings_path):
     print(f"Example: Measured[0]={measured_C_all[0][0]}, Expected[0]={expected_C_all[0][0]}")
     return measured_C_all, expected_C_all, n_c, n_frames
 
-# Q2
+
+# Q2 
 def question2_fit_distortion(measured_C_all, expected_C_all):
     """Fit 3D Bernstein polynomial distortion correction."""
     correction_fn = fit_distortion(measured_C_all, expected_C_all, degree=3)
     print("Q2 complete: Distortion correction function fitted.")
     return correction_fn
+
 
 # Q3
 def question3_corrected_pivot(empivot_path, correction_fn):
@@ -70,33 +73,23 @@ def question3_corrected_pivot(empivot_path, correction_fn):
 
     return p_tip, p_dimple, rms, g_points
 
-# Shared helper for Q4 + Q6
+
+#Shared Helper
 def compute_tip_positions(G_frames, correction_fn, g_points, p_tip_corr, F_reg=None):
-    """
-    Computes probe tip positions for a list of EM frames.
-    If F_reg is provided, returns points in CT coordinates;
-    otherwise returns EM-space positions.
-    """
+    """Compute probe tip positions across multiple EM frames (in EM or CT coordinates)."""
     tip_positions = []
     for G_frame in G_frames:
-        # 1. Apply distortion correction
         G_corr = [correction_fn(p) for p in G_frame]
-
-        # 2. Compute probe-to-EM transform
         F_G = register_points(g_points, G_corr)
-
-        # 3. Compute probe tip in EM coordinates
         tip_em = F_G.apply(p_tip_corr)
-
-        # 4. Optionally map to CT coordinates
         tip_final = F_reg.apply(tip_em) if F_reg else tip_em
         tip_positions.append(tip_final)
-
     return tip_positions
 
-# Q4
+
+#Q4
 def question4_compute_Bj(emfiducials_path, g_points, p_tip_corr, correction_fn):
-    """Compute B_j (fiducial tip positions) in EM tracker coordinates."""
+    """Compute fiducial tip positions (B_j) in EM tracker coordinates."""
     frames = read_emfiducials(emfiducials_path)
     B_points_all = compute_tip_positions(frames, correction_fn, g_points, p_tip_corr)
 
@@ -104,9 +97,10 @@ def question4_compute_Bj(emfiducials_path, g_points, p_tip_corr, correction_fn):
     print(f"Example B₁: {B_points_all[0]}")
     return B_points_all
 
-# Q5
+
+# -------------------- Q5 --------------------
 def question5_compute_registration(ctfiducials_path, B_points_all):
-    """Compute registration frame F_reg (EM → CT)."""
+    """Compute registration frame F_reg (maps EM → CT)."""
     b_CT_points = read_ctfiducials(ctfiducials_path)
     F_reg = register_points(B_points_all, b_CT_points)
 
@@ -116,23 +110,27 @@ def question5_compute_registration(ctfiducials_path, B_points_all):
     return F_reg
 
 
-# Q6
-def question6_navigation(emnav_path, correction_fn, g_points, p_tip_corr, F_reg, output_path):
-    """Apply distortion correction and registration to compute tip positions in CT coordinates."""
+# -------------------- Q6 --------------------
+def question6_navigation(emnav_path, correction_fn, g_points, p_tip_corr, F_reg, prefix):
+    """
+    Apply distortion correction and registration to compute probe tip positions
+    in CT coordinates, then write formatted output to NAME-EM-OUTPUT2.TXT.
+    """
+    from e_output_writer import write_output2_file
     frames = read_emnav(emnav_path)
+
+    # Compute CT-space tip positions
     tip_positions_ct = compute_tip_positions(frames, correction_fn, g_points, p_tip_corr, F_reg)
 
-    # Write to file
-    with open(output_path, 'w') as f:
-        f.write(f"{len(tip_positions_ct)}, {os.path.basename(output_path)}\n")
-        for p in tip_positions_ct:
-            f.write(f"{p.x:.3f}, {p.y:.3f}, {p.z:.3f}\n")
+    # Use shared output writer for consistent formatting
+    write_output2_file(prefix, tip_positions_ct)
 
-    print(f"\nQ6 complete — wrote {len(tip_positions_ct)} CT-space tip positions → {output_path}")
+    print(f"\nQ6 complete — computed {len(tip_positions_ct)} CT-space tip positions.")
     print(f"Example tip: {tip_positions_ct[0]}")
     return tip_positions_ct
 
-# Main driver
+
+# -------------------- Main --------------------
 if __name__ == "__main__":
     prefix = sys.argv[1] if len(sys.argv) > 1 else "debug-a"
 
@@ -143,16 +141,15 @@ if __name__ == "__main__":
     emfiducials_path = f"../data/pa2-{prefix}-em-fiducialss.txt"
     ctfiducials_path = f"../data/pa2-{prefix}-ct-fiducials.txt"
     emnav_path = f"../data/pa2-{prefix}-em-nav.txt"
-    output_path = f"../output/pa2-{prefix}-EM-OUTPUT2.txt"
 
     print(f"Running PA2 (Questions 1–6) on dataset '{prefix}'...\n")
 
-    # Sequential pipeline
+    # Full pipeline
     measured_C_all, expected_C_all, n_c, n_frames = question1_expected_vs_measured(calbody_path, calreadings_path)
     correction_fn = question2_fit_distortion(measured_C_all, expected_C_all)
     p_tip_corr, p_dimple_corr, rms_corr, g_points = question3_corrected_pivot(empivot_path, correction_fn)
     B_points_all = question4_compute_Bj(emfiducials_path, g_points, p_tip_corr, correction_fn)
     F_reg = question5_compute_registration(ctfiducials_path, B_points_all)
-    tip_positions_ct = question6_navigation(emnav_path, correction_fn, g_points, p_tip_corr, F_reg, output_path)
+    tip_positions_ct = question6_navigation(emnav_path, correction_fn, g_points, p_tip_corr, F_reg, prefix)
 
     print("\nPA2 (Q1–Q6) complete — final CT-space navigation output ready.")

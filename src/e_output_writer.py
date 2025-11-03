@@ -1,8 +1,10 @@
 """
-CIS PA1 - Output Writer
+CIS PA1 & PA2 - Output Writer
 Authors: Rohit Satish and Sahana Raja
 
-Writes output files for PA1 (Questions 4–6) in the required format.
+Contains:
+ - write_output1_file(): for PA1 (Questions 4–6)
+ - write_output2_file(): for PA2 (Question 6, CT-space navigation)
 """
 
 from pathlib import Path
@@ -10,6 +12,7 @@ from typing import List
 from a_cis_math import Point3D
 
 
+# -------------------- PA1 OUTPUT --------------------
 def write_output1_file(filepath: str,
                        em_pivot_point: Point3D,
                        opt_pivot_point: Point3D,
@@ -35,11 +38,38 @@ def write_output1_file(filepath: str,
             for p in frame:
                 f.write(f"{p.x:8.2f}, {p.y:8.2f}, {p.z:8.2f}\n")
 
-    print(f"Output successfully written to {output_path.resolve()}")
+    print(f"PA1 output successfully written to {output_path.resolve()}")
+
+
+# -------------------- PA2 OUTPUT --------------------
+def write_output2_file(prefix: str, tip_positions_ct: List[Point3D]):
+    """
+    Write PA2 output (Q6) file that lists probe tip positions in CT coordinates.
+
+    Format:
+        Line 1: N_frames, pa2-<prefix>-output2.txt
+        Lines 2+: v_x, v_y, v_z (probe tip in CT coordinates)
+    """
+    output_dir = Path("../output")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    filename = f"pa2-{prefix}-output2.txt"
+    filepath = output_dir / filename
+
+    with open(filepath, "w") as f:
+        # Header line
+        f.write(f"{len(tip_positions_ct)}, {filename}\n")
+
+        # Write each tip position (from CT-space navigation)
+        for p in tip_positions_ct:
+            f.write(f"{p.x:8.2f}, {p.y:8.2f}, {p.z:8.2f}\n")
+
+    print(f"PA2 output successfully written to {filepath.resolve()}")
 
 
 # -------------------- Local test --------------------
 if __name__ == "__main__":
+    # --- Test PA1 writer ---
     em_pivot = Point3D(201.69, 190.61, 207.96)
     opt_pivot = Point3D(195.00, 192.00, 210.00)
     c_expected = [
@@ -48,13 +78,13 @@ if __name__ == "__main__":
          Point3D(91.88, 94.25, 350.40)],
         [Point3D(96.08, 226.50, 104.19)]
     ]
+    write_output1_file("../output/pa2-debug-a-output.txt", em_pivot, opt_pivot, c_expected, nc=3, n_frames=2)
 
-    # Typical usage in main
-    write_output1_file(
-        "../output/pa2-debug-a-output.txt",
-        em_pivot,
-        opt_pivot,
-        c_expected,
-        nc=3,
-        n_frames=2
-    )
+    # --- Test PA2 writer ---
+    tip_points = [
+        Point3D(104.84, 107.54, 57.87),
+        Point3D(108.22, 112.99, 59.34),
+        Point3D(110.45, 118.33, 60.22),
+        Point3D(112.19, 121.77, 63.10)
+    ]
+    write_output2_file("debug-a", tip_points)
