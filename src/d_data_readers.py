@@ -1,13 +1,15 @@
 """
-CIS PA1 - Data File Readers
+CIS PA1/PA2 - Data File Readers
 Authors: Rohit Satish and Sahana Raja
 
-Reads various data file formats:
+Reads all data files for PA1 and PA2:
 - calbody.txt: calibration object geometry
 - calreadings.txt: EM tracker readings
 - empivot.txt: EM pivot data
 - optpivot.txt: optical pivot data
-- emtest.txt: EM testing data
+- em-fiducials.txt: EM frames touching CT fiducials
+- ct-fiducials.txt: CT-space fiducial coordinates
+- em-nav.txt: EM frames during navigation
 """
 
 from a_cis_math import Point3D
@@ -80,9 +82,32 @@ def read_optpivot(filepath):
     return frames
 
 
-# -------------------- EMTEST --------------------
-def read_emtest(filepath):
-    """Read EM test data (emtest.txt)."""
+# -------------------- EM-FIDUCIALS --------------------
+def read_emfiducials(filepath):
+    """Read EM frames where the probe tip contacts CT fiducials."""
+    with open(filepath, 'r') as f:
+        header = _parse_header(f.readline())
+        N_G, N_B = header[:2]  # number of probe markers, number of fiducials
+        frames = []
+        for _ in range(N_B):
+            g_frame = [Point3D(*map(float, f.readline().replace(',', ' ').split())) for _ in range(N_G)]
+            frames.append(g_frame)
+    return frames
+
+
+# -------------------- CT-FIDUCIALS --------------------
+def read_ctfiducials(filepath):
+    """Read known CT-space fiducial coordinates."""
+    with open(filepath, 'r') as f:
+        header = _parse_header(f.readline())
+        N_B = header[0]
+        b_points = [Point3D(*map(float, f.readline().replace(',', ' ').split())) for _ in range(N_B)]
+    return b_points
+
+
+# -------------------- EM-NAV --------------------
+def read_emnav(filepath):
+    """Read EM navigation data (probe tracking during test/CT alignment)."""
     with open(filepath, 'r') as f:
         header = _parse_header(f.readline())
         N_G, N_frames = header[:2]
@@ -95,19 +120,20 @@ def read_emtest(filepath):
 
 # -------------------- Local Test --------------------
 if __name__ == "__main__":
-    # Test one of each file type if available
-    paths = {
-        "calbody": "../data/pa2-debug-a-calbody.txt",
-        "calreadings": "../data/pa2-debug-a-calreadings.txt",
-        "empivot": "../data/pa2-debug-a-empivot.txt",
-        "optpivot": "../data/pa2-debug-a-optpivot.txt",
-        "emtest": "../data/pa2-debug-a-emtest.txt",
+    base = "../data/pa2-debug-b"
+
+    tests = {
+        "calbody": f"{base}-calbody.txt",
+        "calreadings": f"{base}-calreadings.txt",
+        "empivot": f"{base}-empivot.txt",
+        "optpivot": f"{base}-optpivot.txt",
+        "emfiducials": f"{base}-EM-FIDUCIALS.txt",
+        "ctfiducials": f"{base}-CT-FIDUCIALS.txt",
+        "emnav": f"{base}-EM-NAV.txt",
     }
 
-    if os.path.exists(paths["optpivot"]):
-        frames = read_optpivot(paths["optpivot"])
-        print(f"Loaded {len(frames)} optical pivot frames")
-        print(f"  D markers in frame 1: {len(frames[0][0])}")
-        print(f"  H markers in frame 1: {len(frames[0][1])}")
-        print(f"  Sample D[0]: {frames[0][0][0]}")
-        print(f"  Sample H[0]: {frames[0][1][0]}")
+    if os.path.exists(tests["emfiducials"]):
+        frames = read_emfiducials(tests["emfiducials"])
+        print(f"Loaded {len(frames)} EM fiducial frames")
+        print(f"  Markers per frame: {len(frames[0])}")
+        print(f"  Sample G[0]: {frames[0][0]}")
