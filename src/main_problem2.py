@@ -27,8 +27,6 @@ from a_cis_math import Point3D
 # --- Local import for PA2 ---
 from a_distortion_calibration import fit_distortion
 
-
-# -------------------------------------------------------------
 # Q1
 def question1_expected_vs_measured(calbody_path, calreadings_path):
     """Compute expected and measured C points for each frame."""
@@ -42,8 +40,6 @@ def question1_expected_vs_measured(calbody_path, calreadings_path):
     print(f"Example: Measured[0]={measured_C_all[0][0]}, Expected[0]={expected_C_all[0][0]}")
     return measured_C_all, expected_C_all, n_c, n_frames
 
-
-# -------------------------------------------------------------
 # Q2
 def question2_fit_distortion(measured_C_all, expected_C_all):
     """Fit 3D Bernstein polynomial distortion correction."""
@@ -51,8 +47,6 @@ def question2_fit_distortion(measured_C_all, expected_C_all):
     print("Q2 complete: Distortion correction function fitted.")
     return correction_fn
 
-
-# -------------------------------------------------------------
 # Q3
 def question3_corrected_pivot(empivot_path, correction_fn):
     """Recompute EM pivot calibration after distortion correction."""
@@ -76,8 +70,6 @@ def question3_corrected_pivot(empivot_path, correction_fn):
 
     return p_tip, p_dimple, rms, g_points
 
-
-# -------------------------------------------------------------
 # Shared helper for Q4 + Q6
 def compute_tip_positions(G_frames, correction_fn, g_points, p_tip_corr, F_reg=None):
     """
@@ -102,8 +94,6 @@ def compute_tip_positions(G_frames, correction_fn, g_points, p_tip_corr, F_reg=N
 
     return tip_positions
 
-
-# -------------------------------------------------------------
 # Q4
 def question4_compute_Bj(emfiducials_path, g_points, p_tip_corr, correction_fn):
     """Compute B_j (fiducial tip positions) in EM tracker coordinates."""
@@ -114,8 +104,6 @@ def question4_compute_Bj(emfiducials_path, g_points, p_tip_corr, correction_fn):
     print(f"Example B₁: {B_points_all[0]}")
     return B_points_all
 
-
-# -------------------------------------------------------------
 # Q5
 def question5_compute_registration(ctfiducials_path, B_points_all):
     """Compute registration frame F_reg (EM → CT)."""
@@ -128,7 +116,6 @@ def question5_compute_registration(ctfiducials_path, B_points_all):
     return F_reg
 
 
-# -------------------------------------------------------------
 # Q6
 def question6_navigation(emnav_path, correction_fn, g_points, p_tip_corr, F_reg, output_path):
     """Apply distortion correction and registration to compute tip positions in CT coordinates."""
@@ -145,8 +132,6 @@ def question6_navigation(emnav_path, correction_fn, g_points, p_tip_corr, F_reg,
     print(f"Example tip: {tip_positions_ct[0]}")
     return tip_positions_ct
 
-
-# -------------------------------------------------------------
 # Main driver
 if __name__ == "__main__":
     prefix = sys.argv[1] if len(sys.argv) > 1 else "debug-a"
