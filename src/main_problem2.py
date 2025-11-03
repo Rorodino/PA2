@@ -15,11 +15,11 @@ import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # --- Imports from PA1 ---
-from PA1.main_problem1 import compute_expected_calibration
-from PA1.d_data_readers import read_calbody, read_calreadings, read_empivot
-from PA1.b_pointSetToPointRegistration import register_points
-from PA1.c_pivot_calibration import solve_pivot_calibration
-from PA1.a_cis_math import Point3D
+from main_problem1 import compute_expected_calibration
+from d_data_readers import read_calbody, read_calreadings, read_empivot
+from b_pointSetToPointRegistration import register_points
+from c_pivot_calibration import solve_pivot_calibration
+from a_cis_math import Point3D
 
 # --- Local import for PA2 ---
 from a_distortion_calibration import fit_distortion
@@ -78,43 +78,6 @@ def question3_corrected_pivot(empivot_path, correction_fn):
     return p_tip, p_dimple, rms, g_points
 
 
-# -------------------- Q4 --------------------
-def question4_compute_fiducials(calreadings_path, g_points, p_tip_corr, correction_fn):
-    """
-    Question 4 - Compute the fiducial locations b_j with respect to the EM tracker base.
-
-    For each fiducial frame:
-      1. The EM tracker measures the probe markers G_i.
-      2. Using known probe geometry g_i, compute F_G (probe-local → EM tracker).
-      3. Apply F_G to the corrected probe tip p_tip_corr to obtain b_j in EM coordinates.
-
-    Args:
-        calreadings_path (str): path to pa2-<prefix>-emfiducials.txt
-        g_points (list[Point3D]): probe geometry from first corrected frame
-        p_tip_corr (Point3D): corrected probe tip in probe-local coordinates
-        correction_fn (callable): distortion correction function
-
-    Returns:
-        list[Point3D]: fiducial tip positions b_j in EM tracker base coordinates
-    """
-    frames = read_calreadings(calreadings_path)
-    b_points_all = []
-
-    for _, _, G_frame in frames:
-        # 1. Correct EM marker distortion
-        G_corr = [correction_fn(p) for p in G_frame]
-
-        # 2. Compute F_G (probe-local → EM tracker)
-        F_G = register_points(g_points, G_corr)
-
-        # 3. Compute tip position in EM tracker base frame
-        b_j = F_G.apply(p_tip_corr)
-        b_points_all.append(b_j)
-
-    print(f"\nQ4 complete — computed {len(b_points_all)} fiducial positions b_j in EM base space.")
-    print(f"Example b₁: {b_points_all[0]}")
-    return b_points_all
-
 
 # -------------------- Main --------------------
 if __name__ == "__main__":
@@ -136,7 +99,5 @@ if __name__ == "__main__":
     # Q3: Corrected Pivot Calibration
     p_tip_corr, p_dimple_corr, rms_corr, g_points = question3_corrected_pivot(empivot_path, correction_fn)
 
-    # Q4: Fiducial Locations
-    b_points_all = question4_compute_fiducials(calbody_path, calreadings_path, g_points, p_tip_corr)
-
+   
     print("\nPA2 (Q1–Q4) complete. Ready for registration (Q5) and CT mapping (Q6).")

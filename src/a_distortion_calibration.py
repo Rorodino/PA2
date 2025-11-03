@@ -8,16 +8,18 @@ measured (distorted) EM coordinates to expected (true) coordinates.
 
 import numpy as np
 from math import comb
-from PA1.a_cis_math import Point3D
+from a_cis_math import Point3D
 
 
 # Bernstein basis helper function
 def bernstein_basis_vector(N, u):
     """
     Returns a vector [B_N,0(u), ..., B_N,N(u)] for a single coordinate.
+    Works for array-valued 'i' without SciPy.
     """
     i = np.arange(N + 1)
-    return comb(N, i) * (u ** i) * ((1 - u) ** (N - i))
+    binomial = np.array([np.math.comb(N, int(k)) for k in i])
+    return binomial * (u ** i) * ((1 - u) ** (N - i))
 
 
 # Construct full 3D basis for a point
