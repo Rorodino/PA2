@@ -13,7 +13,8 @@ import os
 from pa1_4_data_readers import read_emnav
 from pa2_4_fiducial_registration import compute_tip_positions
 from pa1_5_output_writer import write_output2_file
-
+import logging
+logger = logging.getLogger(__name__)
 
 def question6_navigation(emnav_path, correction_fn, g_points, p_tip_corr, F_reg, prefix):
     """
@@ -37,6 +38,5 @@ def question6_navigation(emnav_path, correction_fn, g_points, p_tip_corr, F_reg,
     # Write to standard output file here because all information is now made available
     write_output2_file(prefix, tip_positions_ct)
 
-    print(f"\nQ6 complete — computed {len(tip_positions_ct)} CT-space tip positions.")
-    print(f"Example tip: {tip_positions_ct[0]}")
+    logger.info(f"Q6 complete — computed {len(tip_positions_ct)} CT-space tip positions.")
     return tip_positions_ct

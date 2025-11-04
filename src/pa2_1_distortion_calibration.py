@@ -70,5 +70,5 @@ def fit_distortion(measured_C_all, expected_C_all, degree=3):
         corrected = coeffs @ basis
         return Point3D(*corrected)
 
-    print(f"Distortion model fitted (degree={degree}, coeffs per axis={n_terms})")
+    print(f"Distortion model fitted")
     return correction_fn

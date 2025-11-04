@@ -4,6 +4,19 @@ Generates output1 file
 Authors: Rohit Satish and Sahana Raja
 """
 
+import logging
+
+# Configure global logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.StreamHandler(),              # print to console
+        logging.FileHandler("../logging/pa2.log", mode="w")  # save to file
+    ]
+)
+logger = logging.getLogger(__name__)
+
 import sys, os
 from pa1_1_cis_math import Point3D
 from pa1_2_pointSetToPointRegistration import register_points

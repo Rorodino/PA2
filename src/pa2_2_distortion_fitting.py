@@ -12,7 +12,8 @@ Implements Questions 1-2 of Programming Assignment 2 (PA2):
 from main_pa1 import compute_expected_calibration
 from pa1_4_data_readers import read_calreadings
 from pa2_1_distortion_calibration import fit_distortion
-
+import logging
+logger = logging.getLogger(__name__)
 
 def question1_expected_vs_measured(calbody_path, calreadings_path):
     """
@@ -24,8 +25,8 @@ def question1_expected_vs_measured(calbody_path, calreadings_path):
     measured_C_all = [C_frame for (_, _, C_frame) in frames]
     expected_C_all = all_expected
 
-    print(f"Q1 complete: {n_frames} frames × {n_c} C markers")
-    print(f"Example: Measured[0]={measured_C_all[0][0]}, Expected[0]={expected_C_all[0][0]}")
+    logger.info("Q1 complete")
+
     return measured_C_all, expected_C_all, n_c, n_frames
 
 
@@ -35,5 +36,5 @@ def question2_fit_distortion(measured_C_all, expected_C_all):
     Returns correction_fn callable.
     """
     correction_fn = fit_distortion(measured_C_all, expected_C_all, degree=3)
-    print("Q2 complete: Distortion correction function fitted.")
+    logger.info("Q2 complete: Distortion correction function fitted.")
     return correction_fn

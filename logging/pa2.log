@@ -1,0 +1,7 @@
+2025-11-04 12:47:27,159 [INFO] Q1 complete
+2025-11-04 12:47:27,230 [INFO] Q2 complete: Distortion correction function fitted.
+2025-11-04 12:47:27,297 [INFO] Q3: Trained distortion correction model from C_i data.
+2025-11-04 12:47:27,303 [INFO] Q3 complete — Distortion-corrected EM Pivot (Trained Bernstein):
+2025-11-04 12:47:27,309 [INFO] Q4 complete — computed 6 fiducial positions (B_j) in EM space.
+2025-11-04 12:47:27,312 [INFO] Q5 complete — computed registration frame F_reg.
+2025-11-04 12:47:27,317 [INFO] Q6 complete — computed 4 CT-space tip positions.

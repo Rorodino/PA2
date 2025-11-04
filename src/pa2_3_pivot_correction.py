@@ -13,7 +13,8 @@ from pa1_2_pointSetToPointRegistration import register_points
 from pa1_3_pivot_calibration import solve_pivot_calibration
 from pa1_4_data_readers import read_empivot
 from pa2_1_distortion_calibration import fit_distortion
-
+import logging
+logger = logging.getLogger(__name__)
 
 def question3_corrected_pivot(empivot_path, measured_C_all, expected_C_all):
     """
@@ -31,7 +32,7 @@ def question3_corrected_pivot(empivot_path, measured_C_all, expected_C_all):
     """
     # 1. Fit distortion correction from C_i data
     correction_fn = fit_distortion(measured_C_all, expected_C_all, degree=3)
-    print("Q3: Trained distortion correction model from C_i data.")
+    logger.info("Q3: Trained distortion correction model from C_i data.")
 
     # 2. Apply correction to all EM pivot frames
     frames = read_empivot(empivot_path)
@@ -52,9 +53,8 @@ def question3_corrected_pivot(empivot_path, measured_C_all, expected_C_all):
     # 5. Solve pivot calibration
     p_tip_corr, p_dimple_corr, rms_corr = solve_pivot_calibration(rotations, translations)
 
-    print("\nQ3 complete — Distortion-corrected EM Pivot (Trained Bernstein):")
-    print(f"  Tip (local frame): {p_tip_corr}")
-    print(f"  Dimple (EM frame): {p_dimple_corr}")
-    print(f"  RMS: {rms_corr:.6f} mm")
+    logger.info("Q3 complete — Distortion-corrected EM Pivot (Trained Bernstein):")
+    logger.debug(f"  Tip (local frame): {p_tip_corr}")
+    logger.debug(f"  Dimple (EM frame): {p_dimple_corr}")
 
     return p_tip_corr, p_dimple_corr, rms_corr, g_points, correction_fn

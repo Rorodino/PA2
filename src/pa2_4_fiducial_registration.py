@@ -9,7 +9,8 @@ Q5 - Compute the registration frame F_reg that maps EM -> CT coordinates.
 """
 from pa1_2_pointSetToPointRegistration import register_points
 from pa1_4_data_readers import read_emfiducials, read_ctfiducials
-
+import logging
+logger = logging.getLogger(__name__)
 
 
 # -------------------- Shared Helper --------------------
@@ -48,8 +49,7 @@ def question4_compute_Bj(emfiducials_path, g_points, p_tip_corr, correction_fn):
     frames = read_emfiducials(emfiducials_path)
     B_points_all = compute_tip_positions(frames, correction_fn, g_points, p_tip_corr)
 
-    print(f"\nQ4 complete — computed {len(B_points_all)} fiducial positions (B_j) in EM space.")
-    print(f"Example B₁: {B_points_all[0]}")
+    logger.info(f"Q4 complete — computed {len(B_points_all)} fiducial positions (B_j) in EM space.")
     return B_points_all
 
 
@@ -64,7 +64,9 @@ def question5_compute_registration(ctfiducials_path, B_points_all):
     b_CT_points = read_ctfiducials(ctfiducials_path)
     F_reg = register_points(B_points_all, b_CT_points)
 
-    print("\nQ5 complete — computed registration frame F_reg.")
-    print("Rotation:\n", F_reg.rotation.matrix)
-    print("Translation:", F_reg.translation)
+    logger.info("Q5 complete — computed registration frame F_reg.")
+    logger.debug(f"Rotation matrix:\n{F_reg.rotation.matrix}")
+    logger.debug(f"Translation vector: {F_reg.translation}")
+
+
     return F_reg

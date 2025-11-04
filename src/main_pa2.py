@@ -20,6 +20,19 @@ All core computations are modularized into:
     pa2_5_navigation_output.py
 """
 
+import logging
+
+# Configure global logging
+logging.basicConfig(
+    level=logging.INFO,  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.StreamHandler(),              # print to console
+        logging.FileHandler("../logging/pa2.log", mode="w")  # save to file
+    ]
+)
+logger = logging.getLogger(__name__)
+
 import sys
 import os
 
