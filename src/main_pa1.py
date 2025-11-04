@@ -1,5 +1,6 @@
 """
 CIS PA1 - Main File (Questions 4, 5, 6)
+Generates output1 file
 Authors: Rohit Satish and Sahana Raja
 """
 
@@ -99,12 +100,11 @@ if __name__ == "__main__":
     # Output file
     os.makedirs("../output", exist_ok=True)
     write_output1_file(
-        f"../output/pa2-{prefix}-output.txt",
+        f"../output/pa2-{prefix}-output1.txt",
         p_dimple_em,
         p_dimple_opt,
         all_expected,
         nc,
         n_frames
     )
-    print(f"\nOutput written to ../output/pa2-{prefix}-output.txt")
-    
+    print(f"\nOutput written to ../output/pa2-{prefix}-output1.txt")

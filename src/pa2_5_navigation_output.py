@@ -34,7 +34,7 @@ def question6_navigation(emnav_path, correction_fn, g_points, p_tip_corr, F_reg,
     frames = read_emnav(emnav_path)
     tip_positions_ct = compute_tip_positions(frames, correction_fn, g_points, p_tip_corr, F_reg)
 
-    # Write to standard output file
+    # Write to standard output file here because all information is now made available
     write_output2_file(prefix, tip_positions_ct)
 
     print(f"\nQ6 complete — computed {len(tip_positions_ct)} CT-space tip positions.")
